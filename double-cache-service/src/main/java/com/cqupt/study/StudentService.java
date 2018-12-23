@@ -23,7 +23,7 @@ public interface StudentService {
      * @param id
      * @return
      * */
-    int removeStudent(int id);
+    int removeStudent(Long id);
 
     /**
      * 根据id更新某个Student信息
@@ -39,5 +39,5 @@ public interface StudentService {
      * @param id
      * @return
      * */
-    Student findStudent(int id);
+    Student findStudent(Long id);
 }

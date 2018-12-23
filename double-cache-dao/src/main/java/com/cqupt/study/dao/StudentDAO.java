@@ -1,6 +1,10 @@
 package com.cqupt.study.dao;
 
 import com.cqupt.study.pojo.Student;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -10,13 +14,14 @@ import org.springframework.stereotype.Repository;
  * @Version: 1.0
  */
 @Repository
-public interface StudentDao {
+public interface StudentDAO {
     /**
      * 更新Student信息
      *
      * @param student
      * @return
      * */
+    @Insert("insert into student(NAME) VALUES(#{name})")
     int saveStudent(Student student);
 
     /**
@@ -25,7 +30,8 @@ public interface StudentDao {
      * @param id
      * @return
      * */
-    int removeStudent(int id);
+    @Delete("delete from student where id = #{id}")
+    int removeStudent(Long id);
 
     /**
      * 根据id更新某个Student信息
@@ -33,6 +39,7 @@ public interface StudentDao {
      * @param student
      * @return
      * */
+    @Update("update student set name = #{name} where id = #{id}")
     int updateStudent(Student student);
 
     /**
@@ -41,5 +48,6 @@ public interface StudentDao {
      * @param id
      * @return
      * */
-    Student findStudent(int id);
+    @Select("select * from student where id = #{id}")
+    Student findStudent(Long id);
 }

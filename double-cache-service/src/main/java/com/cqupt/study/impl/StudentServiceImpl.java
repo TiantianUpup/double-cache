@@ -1,9 +1,10 @@
 package com.cqupt.study.impl;
 
 import com.cqupt.study.pojo.Student;
-import com.cqupt.study.dao.StudentDao;
+import com.cqupt.study.dao.StudentDAO;
 import com.cqupt.study.StudentGuavaCache;
 import com.cqupt.study.StudentService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -21,7 +22,10 @@ public class StudentServiceImpl implements StudentService {
     private StudentGuavaCache studentGuavaCache;
 
     @Resource
-    private StudentDao studentDao;
+    private StudentDAO studentDao;
+
+    @Resource
+    private RedisTemplate redisTemplate;
     /**
      * 更新Student信息
      *
@@ -30,7 +34,7 @@ public class StudentServiceImpl implements StudentService {
      * */
     @Override
     public int saveStudent(Student student) {
-        return 0;
+        return studentDao.saveStudent(student);
     }
 
     /**
@@ -40,7 +44,10 @@ public class StudentServiceImpl implements StudentService {
      * @return
      * */
     @Override
-    public int removeStudent(int id) {
+    public int removeStudent(Long id) {
+        //1.清除guava cache缓存
+        //2.清除redis缓存
+        //3.删除mysql中的数据
         return 0;
     }
 
@@ -62,7 +69,7 @@ public class StudentServiceImpl implements StudentService {
      * @return
      * */
     @Override
-    public Student findStudent(int id) {
+    public Student findStudent(Long id) {
         return null;
     }
 }

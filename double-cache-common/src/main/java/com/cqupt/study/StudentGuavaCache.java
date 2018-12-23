@@ -1,6 +1,6 @@
 package com.cqupt.study;
 
-import com.cqupt.study.dao.StudentDao;
+import com.cqupt.study.dao.StudentDAO;
 import com.cqupt.study.pojo.Student;
 import org.springframework.stereotype.Component;
 
@@ -14,9 +14,9 @@ import javax.annotation.Resource;
  * @Version: 1.0
  */
 @Component
-public class StudentGuavaCache extends SuperBaseGuavaCache<Integer, Student> {
+public class StudentGuavaCache extends SuperBaseGuavaCache<Long, Student> {
     @Resource
-    private StudentDao studentDao;
+    private StudentDAO studentDao;
 
     /**
      * 返回加载到内存中的数据，一般从数据库中加载
@@ -25,7 +25,7 @@ public class StudentGuavaCache extends SuperBaseGuavaCache<Integer, Student> {
      * @return V
      * */
     @Override
-    Student getLoadData(Integer key) {
+    Student getLoadData(Long key) {
         return studentDao.findStudent(key);
     }
 

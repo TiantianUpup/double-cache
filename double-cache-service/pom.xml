@@ -17,6 +17,12 @@
             <groupId>com.cqupt.study</groupId>
         </dependency>
 
+        <!--redis-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-data-redis</artifactId>-->
+        <!--</dependency>-->
+
         <dependency>
             <artifactId>double-cache-common</artifactId>
             <groupId>com.cqupt.study</groupId>

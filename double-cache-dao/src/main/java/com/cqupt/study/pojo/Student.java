@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * @Description: TODO
+ * @Description: Student实体类
  *
  * @Author: hetiantian
  * @Date:2018/12/22 20:35 
@@ -16,7 +16,7 @@ public class Student {
     /**
      * 主键唯一标示符
      * */
-    private Integer id;
+    private Long id;
 
     /**
      * 姓名
