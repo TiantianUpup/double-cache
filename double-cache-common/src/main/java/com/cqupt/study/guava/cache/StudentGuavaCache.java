@@ -33,7 +33,9 @@ public class StudentGuavaCache extends SuperBaseGuavaCache<Long, Student> {
     @Override
     Student getLoadData(Long key) {
         Student student = redisService.get(key);
-        log.info("根据key：{} 从redis加载数据到guava cache", key);
+        if (student != null) {
+            log.info("根据key：{} 从redis加载数据到guava cache", key);
+        }
         return student;
     }
 

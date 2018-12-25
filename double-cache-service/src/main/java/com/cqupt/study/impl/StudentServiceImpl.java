@@ -63,9 +63,15 @@ public class StudentServiceImpl implements StudentService {
      * @param student
      * @return
      * */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public int updateStudent(Student student) {
-        return 0;
+        //1.清除guava cache缓存
+        studentGuavaCache.invalidateOne(student.getId());
+        //2.清除redis缓存
+        redisService.delete(student.getId());
+        //3.更新mysql中的数据
+        return studentDao.updateStudent(student);
     }
 
     /**

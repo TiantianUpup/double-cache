@@ -66,7 +66,6 @@ public abstract class SuperBaseGuavaCache<K, V> {
                         public V load(K key) throws Exception {
                             //不允许返回null值
                             V target = getLoadData(key) != null ? getLoadData(key) : getLoadDataIfNull(key);
-                            log.info("将 {} 加载到guava chche中", target);
                             return target;
                         }
                     });
@@ -115,7 +114,7 @@ public abstract class SuperBaseGuavaCache<K, V> {
      * */
     public void invalidateOne(K key) {
         getCache().invalidate(key);
-        log.info("清除了缓存, key为：{}", key);
+        log.info("清除了guava cache中的缓存, key为：{}", key);
     }
 
     /**
