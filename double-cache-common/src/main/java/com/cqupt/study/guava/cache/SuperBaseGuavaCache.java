@@ -1,10 +1,12 @@
-package com.cqupt.study;
+package com.cqupt.study.guava.cache;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -14,6 +16,7 @@ import java.util.concurrent.TimeUnit;
  * @Date:2018/12/20 16:11
  * @Version: 1.0
  */
+@Slf4j
 public abstract class SuperBaseGuavaCache<K, V> {
     /**
      * 缓存对象
@@ -23,21 +26,33 @@ public abstract class SuperBaseGuavaCache<K, V> {
     /**
      * 缓存最大容量，默认为10
      * */
-    private Integer maximumSize = 10;
+    protected Integer maximumSize = 10;
+
+    /**
+     * 缓存失效时长
+     * */
+    protected Long duration = 5L;
+
+    /**
+     * 缓存失效单位，默认为5s
+     */
+    protected TimeUnit timeUnit = TimeUnit.SECONDS;
 
     /**
      * 返回Loading cache(单例模式的)
      *
-     * @param duration 失效时长
-     * @param unit 失效时长单位
      * @return LoadingCache<K, V>
      * */
-    public LoadingCache<K, V> getCache(long duration, TimeUnit unit) {
+    private LoadingCache<K, V> getCache() {
         if (cache == null) {
             synchronized (SuperBaseGuavaCache.class) {
                 if (cache == null) {
-                    CacheBuilder<Object, Object> tempCache = CacheBuilder.newBuilder()
-                        .expireAfterWrite(duration, unit);
+                    CacheBuilder<Object, Object> tempCache = null;
+
+                    if (duration > 0 && timeUnit != null) {
+                        tempCache = CacheBuilder.newBuilder()
+                            .expireAfterWrite(duration, timeUnit);
+                    }
 
                     //设置最大缓存大小
                     if (maximumSize > 0) {
@@ -50,7 +65,8 @@ public abstract class SuperBaseGuavaCache<K, V> {
                         @Override
                         public V load(K key) throws Exception {
                             //不允许返回null值
-                            V target = getLoadData(key) != null ? getLoadData(key) : getLoadDataIfNull();
+                            V target = getLoadData(key) != null ? getLoadData(key) : getLoadDataIfNull(key);
+                            log.info("将 {} 加载到guava chche中", target);
                             return target;
                         }
                     });
@@ -74,9 +90,10 @@ public abstract class SuperBaseGuavaCache<K, V> {
     /**
      * 调用getLoadData返回null值时自定义加载到内存的值
      *
+     * @param key
      * @return V
      * */
-    abstract V getLoadDataIfNull();
+    abstract V getLoadDataIfNull(K key);
 
     /**
      * 清除缓存(可以批量清除，也可以清除全部)
@@ -85,17 +102,20 @@ public abstract class SuperBaseGuavaCache<K, V> {
      * */
     public void batchInvalidate(List<K> keys) {
         if (keys != null ) {
-            cache.invalidateAll(keys);
+            getCache().invalidateAll(keys);
+            log.info("批量清除缓存, keys为：{}", keys);
+        } else {
+            getCache().invalidateAll();
+            log.info("清除了所有缓存");
         }
-
-        cache.invalidateAll();
     }
 
     /**
      * 清除某个key的缓存
      * */
     public void invalidateOne(K key) {
-        cache.invalidate(key);
+        getCache().invalidate(key);
+        log.info("清除了缓存, key为：{}", key);
     }
 
     /**
@@ -105,6 +125,23 @@ public abstract class SuperBaseGuavaCache<K, V> {
      * @param value 键对应的值
      * */
     public void putIntoCache(K key, V value) {
-        cache.put(key, value);
+        getCache().put(key, value);
+    }
+
+    /**
+     * 获取某个key对应的缓存
+     *
+     * @param key
+     * @return V
+     * */
+    public V getCacheValue(K key) {
+        V cacheValue = null;
+        try {
+            cacheValue = getCache().get(key);
+        } catch (ExecutionException e) {
+            log.error("获取guava cache中的缓存值出错, {}");
+        }
+
+        return cacheValue;
     }
 }

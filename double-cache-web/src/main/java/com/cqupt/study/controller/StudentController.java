@@ -2,9 +2,7 @@ package com.cqupt.study.controller;
 
 import com.cqupt.study.StudentService;
 import com.cqupt.study.pojo.Student;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -15,7 +13,8 @@ import javax.annotation.Resource;
  * @Date:2018/12/22 21:05 
  * @Version: 1.0
  */
-@RestController("/api/student")
+@RestController
+@RequestMapping("/api/student")
 public class StudentController {
     @Resource
     private StudentService studentService;
@@ -23,5 +22,15 @@ public class StudentController {
     @PostMapping
     public Object saveStudent(@RequestBody Student student) {
         return studentService.saveStudent(student);
+    }
+
+    @DeleteMapping("/{id}")
+    public Object removeStudent(@PathVariable("id") Long id) {
+        return studentService.removeStudent(id);
+    }
+
+    @GetMapping("/{id}")
+    public Object findStudent(@PathVariable("id") Long id) {
+        return studentService.findStudent(id);
     }
 }
