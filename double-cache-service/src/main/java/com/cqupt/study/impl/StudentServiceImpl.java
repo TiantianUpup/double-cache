@@ -63,8 +63,8 @@ public class StudentServiceImpl implements StudentService {
      * @param student
      * @return
      * */
-    @Transactional(rollbackFor = Exception.class)
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateStudent(Student student) {
         //1.清除guava cache缓存
         studentGuavaCache.invalidateOne(student.getId());

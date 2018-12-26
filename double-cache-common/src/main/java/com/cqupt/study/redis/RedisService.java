@@ -12,7 +12,7 @@ public interface RedisService<K, V> {
     /**
      * 缓存失效时长
      * */
-    long duration = 5L;
+    long duration = 20L;
 
     /**
      * 缓存失效单位，默认为5s,和guava cache失效时长相同
