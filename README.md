@@ -20,7 +20,7 @@ public abstract class SuperBaseGuavaCache<K, V> {
     /**
      * 缓存对象
      * */
-    private LoadingCache<K, V> cache;
+    private volatile LoadingCache<K, V> cache;
 
     /**
      * 缓存最大容量，默认为10
