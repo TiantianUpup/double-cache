@@ -1,6 +1,29 @@
 # double-cache
 > 查询mysql数据库时，同样的输入需要不止一次获取值或者一个查询需要做大量运算时，很容易会想到使用redis缓存。但是如果查询并发量特别大的话，请求redis服务也会特别耗时，这种场景下，将redis迁移到本地减少查询耗时是一种常见的解决方法
 
+### 项目结构说明
+- double-cache-web 应用模块，请求入口
+- double-cache-service 业务层模块
+- double-cache-dao 持久层模块
+- double-cache-common 公共模块，redis工具类，guava chche抽象类在该模块中
+
+### 数据库准备
+- 数据库的创建
+```
+create database double_cache
+```
+
+- student表的创建
+```
+CREATE TABLE `student` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `gmt_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8
+```
+
 ### 多级缓存基本架构
 ![基本架构.png](https://user-gold-cdn.xitu.io/2018/12/25/167e5fbb01171093?w=916&h=718&f=png&s=18833)
 说明：存储选择了`mysql`、`redis`和`guava cache`。
@@ -263,9 +286,5 @@ public Student findStudent(Long id) {
 <br/>
 <br/>
 <br/>
-天太冷了，更新完毕要学罗文姬女士躺床上玩手机了
-![](https://user-gold-cdn.xitu.io/2018/12/25/167e5fbb0a69d78a?w=528&h=320&f=jpeg&s=14832)
 
-<br>
-<br>
 附：[原文地址](https://juejin.im/post/5c224cd3f265da610e801e8a)
