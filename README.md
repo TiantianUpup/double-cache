@@ -8,9 +8,9 @@
 - double-cache-common 公共模块，redis工具类，guava chche抽象类在该模块中
 
 ### 分支说明
-- master
+- master  
 基础版本
-- cache_annotation_20190114
+- cache_annotation_20190114  
 在基础版本上添加基于注解的方法使用多级缓存
 
 ### 数据库准备
