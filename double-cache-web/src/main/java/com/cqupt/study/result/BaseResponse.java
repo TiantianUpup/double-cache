@@ -1,4 +1,4 @@
-package com.cqupt.study.response;
+package com.cqupt.study.result;
 
 /**
  * @Description: 前端返回展示信息
