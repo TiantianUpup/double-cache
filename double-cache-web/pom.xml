@@ -44,5 +44,11 @@
 			<artifactId>double-cache-service</artifactId>
 			<groupId>com.cqupt.study</groupId>
 		</dependency>
+
+		<!--aop-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
 	</dependencies>
 </project>

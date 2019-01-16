@@ -50,9 +50,9 @@ public class StudentServiceImpl implements StudentService {
     @Transactional(rollbackFor = Exception.class)
     public int removeStudent(Long id) {
         //1.清除guava cache缓存
-        studentGuavaCache.invalidateOne(id);
+        //studentGuavaCache.invalidateOne(id);
         //2.清除redis缓存
-        redisService.delete(id);
+        //redisService.delete(id);
         //3.删除mysql中的数据
         return studentDao.removeStudent(id);
     }
