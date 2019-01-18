@@ -86,6 +86,12 @@ public class StudentServiceImpl implements StudentService {
             throw new ErrorException("传参为null");
         }
 
-        return studentGuavaCache.getCacheValue(id);
+        Student student = studentGuavaCache.getCacheValue(id);
+
+        if (student.getId() == null) {
+            throw new ErrorException("未查找到对应的学生信息");
+        }
+
+        return student;
     }
 }

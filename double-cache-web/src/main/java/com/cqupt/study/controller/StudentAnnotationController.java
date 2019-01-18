@@ -23,7 +23,7 @@ public class StudentAnnotationController {
     private StudentService studentService;
 
     @DeleteMapping("/{id}")
-    @DoubleCacheDelete(key = "#{id}")
+    @DoubleCacheDelete(key = "#id")
     public Object removeStudent(@PathVariable("id") Long id) {
         return studentService.removeStudent(id);
     }

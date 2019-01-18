@@ -1,10 +1,12 @@
 package com.cqupt.study.guava.cache;
 
+import com.cqupt.study.pojo.Student;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +45,7 @@ public abstract class SuperBaseGuavaCache<K, V> {
      *
      * @return LoadingCache<K, V>
      * */
-    private LoadingCache<K, V> getCache() {
+    public LoadingCache<K, V> getCache() {
         if (cache == null) {
             synchronized (SuperBaseGuavaCache.class) {
                 if (cache == null) {
@@ -101,8 +103,14 @@ public abstract class SuperBaseGuavaCache<K, V> {
      * */
     public void batchInvalidate(List<K> keys) {
         if (keys != null ) {
-            getCache().invalidateAll(keys);
-            log.info("批量清除缓存, keys为：{}", keys);
+            List<K> targetKeys = new ArrayList<>();
+            for (K key : keys) {
+                if (getCacheValue(key) != null) {
+                    targetKeys.add(key);
+                }
+            }
+            getCache().invalidateAll();
+            log.info("批量清除缓存, keys为：{}", targetKeys);
         } else {
             getCache().invalidateAll();
             log.info("清除了所有缓存");
@@ -113,8 +121,10 @@ public abstract class SuperBaseGuavaCache<K, V> {
      * 清除某个key的缓存
      * */
     public void invalidateOne(K key) {
-        getCache().invalidate(key);
-        log.info("清除了guava cache中的缓存, key为：{}", key);
+        if (getCacheValue(key) != null) {
+            getCache().invalidate(key);
+            log.info("清除guava cache中的缓存, key为：{}", key);
+        }
     }
 
     /**

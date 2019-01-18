@@ -63,7 +63,9 @@ public class RedisServiceImpl<K, V> implements RedisService<K, V> {
      */
     @Override
     public void delete(K key) {
-        redisTemplate.delete(key);
-        log.info("删除redis中的缓存,key为：{}", key);
+        if (get(key) != null) {
+            redisTemplate.delete(key);
+            log.info("删除redis中的缓存,key为：{}", key);
+        }
     }
 }
