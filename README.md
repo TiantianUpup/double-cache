@@ -41,6 +41,7 @@ CREATE TABLE `student` (
 ### guava cache简单介绍
 `guava cache`和`concurrent hashmap`类似，都是k-v型存储，但是`concurrent hashmap`只能显示的移除元素，而`guava cache`当内存不够用时或者存储超时时会自动移除，具有缓存的基本功能
 
+# master分支功能说明
 ### 封装guava cache 
 - 抽象类：SuperBaseGuavaCache.java
 ```
@@ -289,6 +290,144 @@ public Student findStudent(Long id) {
     }
 ```
 更新和删除就最后一步对mysql的操作不一样，两层缓存都是删除的
+
+# cache_annotation_20190114 分支说明
+### 和master分支相比的区别  
+提供基于注解的方式使用多级缓存
+
+### 为什么需要提供基于注解的方式使用多级缓存  
+1：在不使用注解方式使用多级缓存，业务代码和缓存代码耦合，使用注解可以进行解耦，业务代码和缓存代码分开  
+2：开发方便
+
+### 注解的定义
+```
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface DoubleCacheDelete {
+    /**
+     * 缓存的key
+     * */
+    String key();
+}
+
+```
+申明了一个@DoubleCacheDelete注解
+
+### 注解的拦截
+```
+@Aspect
+@Component
+public class DoubleCacheDeleteAspect {
+    /**
+     * 获取方法参数
+     * */
+    LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
+
+    @Resource
+    private StudentGuavaCache studentGuavaCache;
+
+    @Resource
+    private RedisService<Long, Student> redisService;
+
+    /**
+     * 在方法执行之前对注解进行处理
+     *
+     * @param pjd
+     * @param doubleCacheDelete 注解
+     * @return 返回中的值
+     * */
+    @Around("@annotation(com.cqupt.study.annotation.DoubleCacheDelete) && @annotation(doubleCacheDelete)")
+    @Transactional(rollbackFor = Exception.class)
+    public Object dealProcess(ProceedingJoinPoint pjd, DoubleCacheDelete doubleCacheDelete) {
+        Object result = null;
+        Method method = ((MethodSignature) pjd.getSignature()).getMethod();
+        //获得参数名
+        String[] params = discoverer.getParameterNames(method);
+        //获得参数值
+        Object[] object = pjd.getArgs();
+
+        SpelParser<String> spelParser = new SpelParser<>();
+        EvaluationContext context = spelParser.setAndGetContextValue(params, object);
+
+        //解析SpEL表达式
+        if (doubleCacheDelete.key() == null) {
+            throw new ErrorException("@DoubleCacheDelete注解中key值定义不为null");
+        }
+
+        String key = spelParser.parse(doubleCacheDelete.key(), context);
+        if (key != null) {
+            //1.清除guava cache缓存
+            studentGuavaCache.invalidateOne(Long.valueOf(key));
+            //2.清除redis缓存
+            redisService.delete(Long.valueOf(key));
+        } else {
+            throw new ErrorException("@DoubleCacheDelete注解中key值定义不存在，请检查是否和方法参数相同");
+        }
+
+        //执行目标方法
+        try {
+            result = pjd.proceed();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+
+        return result;
+    }
+
+}
+
+```
+将注解拦截到，并解析出SpEL表达式的值并删除对应的缓存
+
+### SpEL表达式解析
+```
+public class SpelParser<T> {
+    /**
+     * 表达式解析器
+     * */
+    ExpressionParser parser = new SpelExpressionParser();
+
+    /**
+     * 解析SpEL表达式
+     *
+     * @param spel
+     * @param context
+     * @return T 解析出来的值
+     * */
+    public T parse(String spel, EvaluationContext context) {
+        Class<T> keyClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        T key = parser.parseExpression(spel).getValue(keyClass);
+        return key;
+    }
+
+    /**
+     * 将参数名和参数值存储进EvaluationContext对象中
+     *
+     * @param object 参数值
+     * @param params 参数名
+     * @return EvaluationContext对象
+     * */
+    public EvaluationContext setAndGetContextValue(String[] params, Object[] object) {
+        EvaluationContext context = new StandardEvaluationContext();
+        for (int i = 0; i < params.length; i++) {
+            context.setVariable(params[i], object[i]);
+        }
+
+        return context;
+    }
+}
+
+```
+对SpEL解析抽象出专门的一个类
+
+### 原来的删除student的方法：
+```
+public int removeStudent(Long id) {
+        return studentDao.removeStudent(id);
+    }
+
+```
+该方法和原先相比没有了删除缓存的代码，删除缓存的部分都交给注解去完成了
 <br/>
 <br/>
 <br/>
