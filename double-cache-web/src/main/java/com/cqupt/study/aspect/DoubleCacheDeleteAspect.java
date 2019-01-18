@@ -5,6 +5,7 @@ import com.cqupt.study.exception.ErrorException;
 import com.cqupt.study.guava.cache.StudentGuavaCache;
 import com.cqupt.study.pojo.Student;
 import com.cqupt.study.redis.RedisService;
+import com.cqupt.study.spel.SpelParser;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -35,11 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class DoubleCacheDeleteAspect {
     /**
-     * 表达式解析器
-     * */
-    ExpressionParser parser = new SpelExpressionParser();
-
-    /**
      * 获取方法参数
      * */
     LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
@@ -62,26 +58,20 @@ public class DoubleCacheDeleteAspect {
     public Object dealProcess(ProceedingJoinPoint pjd, DoubleCacheDelete doubleCacheDelete) {
         Object result = null;
         Method method = ((MethodSignature) pjd.getSignature()).getMethod();
-
         //获得参数名
         String[] params = discoverer.getParameterNames(method);
-
         //获得参数值
         Object[] object = pjd.getArgs();
 
-        EvaluationContext context = new StandardEvaluationContext();
-        for (int i = 0; i < params.length; i++) {
-            context.setVariable(params[i], object[i]);
-        }
-
+        SpelParser<String> spelParser = new SpelParser<>();
+        EvaluationContext context = spelParser.setAndGetContextValue(params, object);
 
         //解析SpEL表达式
         if (doubleCacheDelete.key() == null) {
             throw new ErrorException("@DoubleCacheDelete注解中key值定义不为null");
         }
 
-        String key = parser.parseExpression(doubleCacheDelete.key()).getValue(context, String.class);
-        System.out.println("key: " + key);
+        String key = spelParser.parse(doubleCacheDelete.key(), context);
         if (key != null) {
             //1.清除guava cache缓存
             studentGuavaCache.invalidateOne(Long.valueOf(key));
