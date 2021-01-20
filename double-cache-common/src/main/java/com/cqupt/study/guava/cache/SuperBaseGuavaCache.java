@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public abstract class SuperBaseGuavaCache<K, V> {
+
     /**
      * 缓存对象
      * */
@@ -109,7 +111,7 @@ public abstract class SuperBaseGuavaCache<K, V> {
                     targetKeys.add(key);
                 }
             }
-            getCache().invalidateAll();
+            getCache().invalidateAll(targetKeys);
             log.info("批量清除缓存, keys为：{}", targetKeys);
         } else {
             getCache().invalidateAll();
@@ -147,6 +149,7 @@ public abstract class SuperBaseGuavaCache<K, V> {
         V cacheValue = null;
         try {
             cacheValue = getCache().get(key);
+            System.out.println("cacheValue" +cacheValue);
         } catch (ExecutionException e) {
             log.error("获取guava cache中的缓存值出错, {}");
         }
