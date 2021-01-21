@@ -68,7 +68,8 @@ public class StudentGuavaCache extends SuperBaseGuavaCache<Long, Student> {
      * */
     @Override
     public void invalidateOne(Long key) {
-        if (getCacheValue(key).getId() != null) {
+        //不为null则进行删除
+        if (getCache().getIfPresent(key) != null) {
             getCache().invalidate(key);
             log.info("清除guava cache中的缓存, key为：{}", key);
         }

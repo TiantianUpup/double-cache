@@ -1,6 +1,5 @@
 package com.cqupt.study.guava.cache;
 
-import com.cqupt.study.pojo.Student;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -8,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -149,7 +147,6 @@ public abstract class SuperBaseGuavaCache<K, V> {
         V cacheValue = null;
         try {
             cacheValue = getCache().get(key);
-            System.out.println("cacheValue" +cacheValue);
         } catch (ExecutionException e) {
             log.error("获取guava cache中的缓存值出错, {}");
         }
