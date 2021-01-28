@@ -65,7 +65,11 @@ public class StudentServiceImpl implements StudentService {
         //2.清除redis缓存
         redisService.delete(student.getId());
         //3.更新mysql中的数据
-        return studentDao.updateStudent(student);
+        int result = studentDao.updateStudent(student);
+        //4.缓存双删
+        redisService.delete(student.getId());
+        studentGuavaCache.invalidateOne(student.getId());
+        return result;
     }
 
     /**
