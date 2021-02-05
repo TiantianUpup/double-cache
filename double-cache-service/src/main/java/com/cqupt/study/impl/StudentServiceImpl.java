@@ -1,11 +1,12 @@
 package com.cqupt.study.impl;
 
-import com.cqupt.study.redis.RedisService;
-import com.cqupt.study.exception.ErrorException;
-import com.cqupt.study.pojo.Student;
-import com.cqupt.study.dao.StudentDAO;
-import com.cqupt.study.guava.cache.StudentGuavaCache;
 import com.cqupt.study.StudentService;
+import com.cqupt.study.dao.StudentDAO;
+import com.cqupt.study.exception.ErrorException;
+import com.cqupt.study.guava.cache.StudentGuavaCache;
+import com.cqupt.study.pojo.Student;
+import com.cqupt.study.redis.RedisService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import javax.annotation.Resource;
  * @Date:2018/12/22 20:51 
  * @Version: 1.0
  */
+@Slf4j
 @Service
 public class StudentServiceImpl implements StudentService {
     @Resource
@@ -67,6 +69,11 @@ public class StudentServiceImpl implements StudentService {
         //3.更新mysql中的数据
         int result = studentDao.updateStudent(student);
         //4.缓存双删
+        try {
+            Thread.sleep(1 * 1000); //根据实际业务来定
+        } catch (InterruptedException e) {
+            log.error("sleep error, error is:{}", e);
+        }
         redisService.delete(student.getId());
         studentGuavaCache.invalidateOne(student.getId());
         return result;

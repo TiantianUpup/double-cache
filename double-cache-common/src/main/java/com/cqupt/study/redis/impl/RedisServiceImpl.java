@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.Random;
 
 /**
  * @Description: redis service实现类
@@ -40,7 +41,9 @@ public class RedisServiceImpl<K, V> implements RedisService<K, V> {
      */
     @Override
     public void set(K key, V value) {
-        valueOperations.set(key, value, duration, timeUnit);
+        //redis缓存失效时间随机，避免缓存穿透
+        Random random = new Random();
+        valueOperations.set(key, value, duration + random.nextInt(5), timeUnit);
         log.info("key={}, value={} 存入redis缓存", key, value);
     }
 

@@ -2,9 +2,10 @@ package com.cqupt.study.controller;
 
 import com.cqupt.study.StudentService;
 import com.cqupt.study.pojo.Student;
-import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
 /**
  * @Description: Student Web Controller
@@ -25,7 +26,7 @@ public class StudentController {
     }
 
     @DeleteMapping("/{id}")
-    public Object removeStudent(@PathVariable("id") Long id) {
+    public Object removeStudent(@PathVariable("id") @Min(1) @Valid Long id) {
         return studentService.removeStudent(id);
     }
 
